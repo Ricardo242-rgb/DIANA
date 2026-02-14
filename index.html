@@ -7,7 +7,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Para Ti">
     <meta name="theme-color" content="#667eea">
-    <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23667eea' width='192' height='192'/><text x='50%' y='50%' font-size='80' text-anchor='middle' dominant-baseline='central' fill='white'>❤️</text></svg>">
     <title>Para Ti ❤️</title>
     <style>
@@ -460,10 +459,21 @@
                 height: 350px;
             }
 
+            /* CORRECCIÓN 1: Los textos ahora siempre están visibles en móvil */
             .photo-caption {
-                transform: translateY(0);
-                position: relative;
+                transform: translateY(0) !important;
+                position: absolute;
                 background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 100%);
+                padding: 20px;
+            }
+
+            .photo-caption strong {
+                font-size: 18px;
+            }
+
+            /* CORRECCIÓN 2: Eliminar el efecto parallax en móvil */
+            .photo-wrapper {
+                transform: none !important;
             }
 
             .reasons-grid {
@@ -472,6 +482,12 @@
 
             .secret-message {
                 padding: 30px 20px;
+            }
+
+            /* CORRECCIÓN 3: Ajustar el candado para que no se corte en móvil */
+            .secret-message::before {
+                top: -20px;
+                font-size: 50px;
             }
         }
     </style>
@@ -624,13 +640,6 @@
         const music = document.getElementById('backgroundMusic');
         const musicControl = document.getElementById('musicControl');
 
-        // Registrar Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js')
-                .then(registration => console.log('Service Worker registrado'))
-                .catch(error => console.log('Error al registrar Service Worker:', error));
-        }
-
         document.getElementById('giftBox').addEventListener('click', function() {
             document.getElementById('welcomeScreen').classList.add('hidden');
             document.getElementById('mainContent').classList.add('visible');
@@ -703,13 +712,17 @@
             }
         }
 
+        // CORRECCIÓN: Deshabilitar el efecto parallax en móvil
         window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            const parallaxElements = document.querySelectorAll('.photo-wrapper');
-            parallaxElements.forEach((el, index) => {
-                const speed = 0.5;
-                el.style.transform = `translateY(${scrolled * speed * (index % 2 === 0 ? 1 : -1) * 0.1}px)`;
-            });
+            // Solo aplicar parallax en pantallas grandes
+            if (window.innerWidth > 768) {
+                const scrolled = window.pageYOffset;
+                const parallaxElements = document.querySelectorAll('.photo-wrapper');
+                parallaxElements.forEach((el, index) => {
+                    const speed = 0.5;
+                    el.style.transform = `translateY(${scrolled * speed * (index % 2 === 0 ? 1 : -1) * 0.1}px)`;
+                });
+            }
         });
     </script>
 </body>
