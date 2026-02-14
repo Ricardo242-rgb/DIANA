@@ -476,6 +476,18 @@
                 transform: none !important;
             }
 
+            /* NUEVO: Animación para fotos en móvil al tocar */
+            .photo-card:active .photo-placeholder {
+                transform: scale(1.1);
+                filter: brightness(1.1);
+                transition: all 0.3s ease;
+            }
+
+            /* NUEVO: Ajustar imagen 5 para que se vea mejor la cara en móvil */
+            .photo-card:nth-child(5) .photo-placeholder {
+                object-position: center 35%;
+            }
+
             .reasons-grid {
                 grid-template-columns: 1fr;
             }
@@ -484,10 +496,15 @@
                 padding: 30px 20px;
             }
 
-            /* CORRECCIÓN 3: Ajustar el candado para que no se corte en móvil */
+            /* CORRECCIÓN 3: Ajustar el candado para que no se corte en móvil - más abajo */
             .secret-message::before {
-                top: -20px;
+                top: 10px;
                 font-size: 50px;
+            }
+
+            /* Ajustar el padding superior del contenido del mensaje secreto */
+            .secret-message h2 {
+                margin-top: 40px;
             }
         }
     </style>
