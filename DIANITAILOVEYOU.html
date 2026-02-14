@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Para Ti">
+    <meta name="theme-color" content="#667eea">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23667eea' width='192' height='192'/><text x='50%' y='50%' font-size='80' text-anchor='middle' dominant-baseline='central' fill='white'>❤️</text></svg>">
+    <title>Para Ti ❤️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+        }
+
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1s, transform 1s;
+        }
+
+        .welcome-screen.hidden {
+            opacity: 0;
+            transform: scale(1.2);
+            pointer-events: none;
+        }
+
+        .gift-box {
+            font-size: 120px;
+            animation: float 3s ease-in-out infinite;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .gift-box:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .welcome-text {
+            color: white;
+            font-size: 28px;
+            margin-top: 30px;
+            text-align: center;
+            animation: pulse 2s ease-in-out infinite;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+
+        .container.visible {
+            opacity: 1;
+        }
+
+        .header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: fadeInDown 1s;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header p {
+            font-size: 20px;
+            opacity: 0.95;
+            font-style: italic;
+        }
+
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 250px);
+            gap: 20px;
+            margin: 40px 0;
+            padding: 0 10px;
+        }
+
+        .photo-card {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: scale(0.8) rotate(5deg);
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+
+        .photo-card.visible {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+        }
+
+        .photo-card:nth-child(1) {
+            grid-column: 1 / 3;
+            grid-row: 1 / 3;
+        }
+
+        .photo-card:nth-child(2) {
+            grid-column: 3 / 5;
+            grid-row: 1 / 2;
+        }
+
+        .photo-card:nth-child(3) {
+            grid-column: 3 / 5;
+            grid-row: 2 / 3;
+        }
+
+        .photo-card:nth-child(4) {
+            grid-column: 1 / 3;
+            grid-row: 3 / 4;
+        }
+
+        .photo-card:nth-child(5) {
+            grid-column: 3 / 5;
+            grid-row: 3 / 4;
+        }
+
+        .photo-card:hover {
+            transform: scale(1.05) translateY(-10px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .photo-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .photo-placeholder {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.6s ease;
+            filter: brightness(0.9);
+        }
+
+        .photo-card:hover .photo-placeholder {
+            transform: scale(1.15);
+            filter: brightness(1.1);
+        }
+
+        .photo-card:nth-child(5) .photo-placeholder {
+            object-position: center 65%;
+        }
+
+        .photo-card:nth-child(5):hover .photo-placeholder {
+            transform: scale(1.15);
+            object-position: center 65%;
+        }
+
+        .photo-card:nth-child(4) .photo-placeholder {
+            object-position: center 45%;
+        }
+
+        .photo-card:nth-child(4):hover .photo-placeholder {
+            transform: scale(1.15);
+            object-position: center 45%;
+        }
+
+        .photo-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
+            color: white;
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+        }
+
+        .photo-card:hover .photo-caption {
+            transform: translateY(0);
+        }
+
+        .photo-caption strong {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #f093fb;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .photo-caption br + text,
+        .photo-caption strong + br + text {
+            font-size: 16px;
+            line-height: 1.5;
+            opacity: 0.95;
+        }
+
+        .reasons-section {
+            margin: 60px 0;
+        }
+
+        .reasons-title {
+            color: white;
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 40px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .reasons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .reason-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.5s;
+            cursor: pointer;
+        }
+
+        .reason-card.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .reason-card:hover {
+            background: white;
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .reason-number {
+            font-size: 40px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .reason-text {
+            font-size: 18px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .secret-message {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.98) 100%);
+            border-radius: 20px;
+            padding: 50px;
+            margin: 60px 0;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .secret-message::before {
+            content: '🔒';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 60px;
+            opacity: 0.3;
+        }
+
+        .unlock-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            font-family: 'Georgia', serif;
+        }
+
+        .unlock-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .unlock-button:active {
+            transform: translateY(0);
+        }
+
+        .secret-content {
+            display: none;
+            animation: fadeIn 1s;
+        }
+
+        .secret-content.revealed {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .secret-content h2 {
+            color: #667eea;
+            font-size: 36px;
+            margin-bottom: 30px;
+        }
+
+        .secret-content p {
+            font-size: 22px;
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #f0f;
+            position: absolute;
+            animation: confetti-fall 3s linear;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .footer .hearts {
+            font-size: 40px;
+            margin: 20px 0;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .music-control {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .music-control:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .music-control::before {
+            content: '🎵';
+            font-size: 30px;
+        }
+
+        .music-control.playing::before {
+            content: '🎶';
+            animation: musicNote 0.5s ease-in-out infinite;
+        }
+
+        @keyframes musicNote {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 36px;
+            }
+
+            .photo-gallery {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                gap: 20px;
+            }
+
+            .photo-card:nth-child(1),
+            .photo-card:nth-child(2),
+            .photo-card:nth-child(3),
+            .photo-card:nth-child(4),
+            .photo-card:nth-child(5) {
+                grid-column: 1;
+                grid-row: auto;
+                height: 350px;
+            }
+
+            .photo-caption {
+                transform: translateY(0);
+                position: relative;
+                background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 100%);
+            }
+
+            .reasons-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .secret-message {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="gift-box" id="giftBox">🎁</div>
+        <div class="welcome-text">Toca el regalo para abrir tu sorpresa</div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="container" id="mainContent">
+        <div class="header">
+            <h1>Para mi Monkey Vieja ❤️🐵</h1>
+            <p>14 de Febrero, 2026</p>
+        </div>
+
+        <!-- Galería de fotos con mensajes -->
+        <div class="photo-gallery">
+            <div class="photo-card">
+                <div class="photo-wrapper">
+                    <img src="https://www.dropbox.com/scl/fi/a9xjsovl5uf6ai8mcg83e/88776978-b9b0-49b4-ad3e-138fe580b179.jpg?rlkey=kfzjpb8l6vuvbtpzr3j4qtxb0&st=ou3h9fqy&raw=1" alt="Foto 1" class="photo-placeholder" id="photo1">
+                </div>
+                <div class="photo-caption">
+                    <strong>💫 Nuestro primer momento especial</strong><br>
+                    Cuando fuimos por primera vez al cerro.
+                </div>
+            </div>
+
+            <div class="photo-card">
+                <div class="photo-wrapper">
+                    <img src="https://www.dropbox.com/scl/fi/fnxsn2qvo6tffg5mb1hxc/51128859-0437-4915-887a-2cfc237b57ae.jpg?rlkey=n1k7zn3s6gl10tokoqan4q76f&st=4jhj25js&raw=1" alt="Foto 2" class="photo-placeholder" id="photo2">
+                </div>
+                <div class="photo-caption">
+                    <strong>✨ El día que me enamoré más de ti</strong><br>
+                    Cuando pasamos una festividad juntos bonitos.
+                </div>
+            </div>
+
+            <div class="photo-card">
+                <div class="photo-wrapper">
+                    <img src="https://www.dropbox.com/scl/fi/tc1haur468hqs2zn6g9le/20434f25-6c2a-403e-b15a-86114e0572a7.jpg?rlkey=tfytvv67rb6yciarx3oitllpq&st=931bznvf&raw=1" alt="Foto 3" class="photo-placeholder" id="photo3">
+                </div>
+                <div class="photo-caption">
+                    <strong>🌟 Nuestra aventura favorita</strong><br>
+                    Cuando fuimos a patinar y no estaba abierto jaja y comimos sushi.
+                </div>
+            </div>
+
+            <div class="photo-card">
+                <div class="photo-wrapper">
+                    <img src="https://www.dropbox.com/scl/fi/3932m6b4snzbejl9ay6q4/985ee522-b1fd-4c40-aa85-d33131f8a5c2.jpg?rlkey=ustc8ys05m3rugyvc0mdf9ir3&st=lrro03pt&raw=1" alt="Foto 4" class="photo-placeholder" id="photo4">
+                </div>
+                <div class="photo-caption">
+                    <strong>💖 Un recuerdo que atesoro</strong><br>
+                    Cuando fuimos a Coyoacán y nos tomaron esta foto.
+                </div>
+            </div>
+
+            <div class="photo-card">
+                <div class="photo-wrapper">
+                    <img src="https://www.dropbox.com/scl/fi/yfnhms7li22hh901xvrx2/a08ae1e6-e881-4734-911d-280b2092a8a1.jpg?rlkey=xdgb7txqk3lht34axn79w29l4&st=wfdc0x0l&raw=1" alt="Foto 5" class="photo-placeholder" id="photo5">
+                </div>
+                <div class="photo-caption">
+                    <strong>🎯 Nuestro futuro juntos</strong><br>
+                    Y se vienen muchas más cosas bonitas y lindas contigo TE AMO.
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de razones -->
+        <div class="reasons-section">
+            <h2 class="reasons-title">✨ Por qué eres mi persona favorita en todo el universo 🐵💕</h2>
+            <div class="reasons-grid">
+                <div class="reason-card">
+                    <div class="reason-number">01</div>
+                    <div class="reason-text">Tu sonrisa ilumina incluso mis días más oscuros y me recuerda por qué cada momento a tu lado vale oro, mi Monkey Vieja hermosa bellaka.</div>
+                </div>
+                <div class="reason-card">
+                    <div class="reason-number">02</div>
+                    <div class="reason-text">La forma en que me entiendes sin palabras. Es como si pudieras leer mi alma y siempre supieras exactamente qué necesito.</div>
+                </div>
+                <div class="reason-card">
+                    <div class="reason-number">03</div>
+                    <div class="reason-text">Tu risa contagiosa que hace que todo parezca posible. Cuando ríes, el mundo entero se detiene y solo existimos tú y yo.</div>
+                </div>
+                <div class="reason-card">
+                    <div class="reason-number">04</div>
+                    <div class="reason-text">Los pequeños detalles que solo tú notas, esos gestos de amor que hacen que me sienta el Monkey más afortunado del universo.</div>
+                </div>
+                <div class="reason-card">
+                    <div class="reason-number">05</div>
+                    <div class="reason-text">Tu valentía para soñar en grande y tu corazón generoso que siempre encuentra espacio para más amor, más aventuras, más nosotros.</div>
+                </div>
+                <div class="reason-card">
+                    <div class="reason-number">06</div>
+                    <div class="reason-text">La paz que siento cuando estoy contigo, como si finalmente hubiera encontrado mi lugar en el mundo. 🐵❤️</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensaje secreto -->
+        <div class="secret-message">
+            <div id="locked">
+                <h2 style="color: #667eea; margin-bottom: 20px;">Hay algo más que quiero decirte...</h2>
+                <p style="color: #666; margin-bottom: 30px;">Un mensaje guardado solo para ti 💌</p>
+                <button class="unlock-button" onclick="unlockSecret()">Desbloquear mi corazón</button>
+            </div>
+            <div class="secret-content" id="secretContent">
+                <h2>Para ti, Monkey Vieja 🐵💕</h2>
+                <p>
+                    Diana, no hay palabras suficientes para expresar lo que significas para mí. Desde que llegaste a mi vida, 
+                    cada día tiene más sentido, más risas, y más amor del que jamás imaginé posible.
+                </p>
+                <p>
+                    Eres mi compañera de aventuras, mi cómplice favorita, mi mejor amiga, y el amor de mi vida. 
+                    Cada momento contigo es un tesoro que guardo con cariño en mi corazón.
+                </p>
+                <p style="font-size: 28px; font-style: italic; color: #764ba2; margin-top: 30px;">
+                    Eres mi siempre, mi para siempre, mi todo. Te amo más de lo que las palabras pueden expresar. ❤️🐵
+                </p>
+                <p style="font-size: 20px; margin-top: 30px; color: #667eea;">
+                    Feliz San Valentín, mi Monkey Vieja hermosa 💕
+                </p>
+                <p style="font-size: 18px; margin-top: 20px; color: #555;">
+                    - Tu Monkey Viejo que te ama con todo el corazón, Ricardo
+                </p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="hearts">💕 💖 💝 💗 💓</div>
+            <p>Con todo mi amor,<br><strong>Tu Monkey Viejo 🐵</strong></p>
+            <p style="margin-top: 30px; opacity: 0.8; font-size: 16px;">
+                Hecho especialmente para ti · San Valentín 2026
+            </p>
+        </div>
+    </div>
+
+    <div class="music-control" id="musicControl" onclick="toggleMusic()"></div>
+
+    <audio id="backgroundMusic" loop>
+        <source src="https://www.dropbox.com/scl/fi/4j1eu4j9uuap0jmzr2v2r/ytmp3free.cc_lana-del-rey-love-song-espaol-youtubemp3free.org.mp3?rlkey=vh7v03tati4gvtwl692gded0z&st=vxd77aoc&raw=1" type="audio/mpeg">
+    </audio>
+
+    <script>
+
+        let musicPlaying = false;
+        const music = document.getElementById('backgroundMusic');
+        const musicControl = document.getElementById('musicControl');
+
+        // Registrar Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(registration => console.log('Service Worker registrado'))
+                .catch(error => console.log('Error al registrar Service Worker:', error));
+        }
+
+        document.getElementById('giftBox').addEventListener('click', function() {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('mainContent').classList.add('visible');
+            createConfetti();
+            
+
+            setTimeout(() => {
+                music.play().then(() => {
+                    musicPlaying = true;
+                    musicControl.classList.add('playing');
+                }).catch(e => {
+                    console.log('Autoplay bloqueado, esperando interacción del usuario');
+                });
+            }, 500);
+
+            animatePhotos();
+
+            setTimeout(() => animateReasons(), 1000);
+        });
+
+        function toggleMusic() {
+            if (musicPlaying) {
+                music.pause();
+                musicControl.classList.remove('playing');
+            } else {
+                music.play();
+                musicControl.classList.add('playing');
+            }
+            musicPlaying = !musicPlaying;
+        }
+
+        function animatePhotos() {
+            const cards = document.querySelectorAll('.photo-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('visible');
+                }, index * 300);
+            });
+        }
+
+        function animateReasons() {
+            const reasons = document.querySelectorAll('.reason-card');
+            reasons.forEach((reason, index) => {
+                setTimeout(() => {
+                    reason.classList.add('visible');
+                }, index * 200);
+            });
+        }
+
+        function unlockSecret() {
+            document.getElementById('locked').style.display = 'none';
+            document.getElementById('secretContent').classList.add('revealed');
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const colors = ['#667eea', '#764ba2', '#f093fb', '#ff6b9d', '#feca57'];
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 5000);
+                }, i * 30);
+            }
+        }
+
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallaxElements = document.querySelectorAll('.photo-wrapper');
+            parallaxElements.forEach((el, index) => {
+                const speed = 0.5;
+                el.style.transform = `translateY(${scrolled * speed * (index % 2 === 0 ? 1 : -1) * 0.1}px)`;
+            });
+        });
+    </script>
+</body>
+</html>
